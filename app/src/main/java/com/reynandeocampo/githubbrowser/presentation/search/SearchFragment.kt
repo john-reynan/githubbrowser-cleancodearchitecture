@@ -81,7 +81,7 @@ class SearchFragment : Fragment() {
 
     private fun searchRepo(query: String) {
         if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
-            sharedViewModel.searchGitHubRepo(query, 0, 0)
+            sharedViewModel.searchGitHubRepo(query, 15, 1)
         } else {
             sharedViewModel.setObservablesToPending()
             showToastMessage("Please turn on your internet connection.")

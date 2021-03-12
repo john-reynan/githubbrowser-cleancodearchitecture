@@ -9,15 +9,26 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.databinding.FragmentRepositoriesBinding
 import com.reynandeocampo.githubbrowser.presentation.SharedViewModel
+import com.reynandeocampo.githubbrowser.utils.ConnectivityHelper
 
 class GitHubRepoFragment : Fragment() {
 
     private lateinit var binding: FragmentRepositoriesBinding
     private lateinit var sharedViewModel: SharedViewModel
+
+    private lateinit var gitHubRepoAdapter: GitHubRepoAdapter
+
+    private val PAGE_START = 1
+
+    private var isLoading = false
+    private var isLastPage = false
+
+    private var currentPage = PAGE_START
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +36,27 @@ class GitHubRepoFragment : Fragment() {
         binding = FragmentRepositoriesBinding.inflate(layoutInflater)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
 
-        binding.recyclerViewRepo.adapter = GitHubRepoAdapter(OnClickListener {
+        gitHubRepoAdapter = GitHubRepoAdapter(OnClickListener {
             openUrlInBrowser(it.url)
+        })
+
+        binding.recyclerViewRepo.adapter = gitHubRepoAdapter
+        binding.recyclerViewRepo.addOnScrollListener(object :
+            PaginationScrollListener(binding.recyclerViewRepo.layoutManager as LinearLayoutManager) {
+            override fun loadMoreItems() {
+                isLoading = true
+                currentPage += 1
+
+                loadNextPage()
+            }
+
+            override fun isLastPage(): Boolean {
+                return isLastPage
+            }
+
+            override fun isLoading(): Boolean {
+                return isLoading
+            }
         })
     }
 
@@ -51,13 +81,19 @@ class GitHubRepoFragment : Fragment() {
                         showPendingView()
                     }
                     Status.LOADING -> {
-                        showLoadingView()
+//                        showLoadingView()
                     }
                     Status.SUCCESS -> {
                         resource.data?.let { data ->
                             if (data.isNotEmpty()) {
-                                renderData(data)
-                                showResultView()
+                                if (currentPage == 1) {
+                                    renderData(data as MutableList<GitRepo>)
+                                    showResultView()
+                                } else if (currentPage > 1) {
+                                    isLoading = false
+                                    gitHubRepoAdapter.addNewItems(data)
+                                }
+
                             } else {
                                 showNoResultView()
                             }
@@ -72,13 +108,30 @@ class GitHubRepoFragment : Fragment() {
                 }
             }
         })
+
+        sharedViewModel.currentPage.observe(viewLifecycleOwner, {
+            it?.let { page ->
+                if (page == 1) {
+                    gitHubRepoAdapter.addLoadingView()
+                }
+            }
+        })
+    }
+
+    private fun loadNextPage() {
+        if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
+            sharedViewModel.searchGitHubRepo("u", 15, currentPage)
+        } else {
+            sharedViewModel.setObservablesToPending()
+            showToastMessage("Please turn on your internet connection.")
+        }
     }
 
     private fun showToastMessage(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun renderData(data: List<GitRepo>) {
+    private fun renderData(data: MutableList<GitRepo>) {
         (binding.recyclerViewRepo.adapter as GitHubRepoAdapter).gitRepos = data
     }
 

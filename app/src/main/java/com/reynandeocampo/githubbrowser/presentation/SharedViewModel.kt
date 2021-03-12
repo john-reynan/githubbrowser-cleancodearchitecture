@@ -22,6 +22,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     val gitHubRepoList = MutableLiveData<Resource<List<GitRepo>>>()
 
+    val currentPage = MutableLiveData(0)
+
     init {
         (application as App).mainComponent.inject(this)
         setObservablesToPending()
@@ -35,6 +37,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
                 val data: List<GitRepo> = useCases.searchGitRepo(query, perPage, page)
 
                 gitHubRepoList.postValue(Resource.success(data = data))
+                updateCurrentPage(page)
             } catch (e: HttpException) {
                 gitHubRepoList.postValue(
                     Resource.error(
@@ -55,5 +58,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setObservablesToPending() {
         gitHubRepoList.postValue(Resource.pending(data = null))
+    }
+
+    fun updateCurrentPage(page: Int) {
+        currentPage.postValue(page)
     }
 }
