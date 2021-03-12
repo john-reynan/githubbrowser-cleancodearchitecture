@@ -1,4 +1,4 @@
-package com.reynandeocampo.data.repositories.datasources.remote
+package com.reynandeocampo.data.repositories.datasources
 
 import com.reynandeocampo.domain.models.GitRepo
 

@@ -1,6 +1,7 @@
 package com.reynandeocampo.data.api
 
 data class Resource<out T>(val status: Status, val data: T?, val message: String?) {
+
     companion object {
         fun <T> pending(data: T?): Resource<T> =
             Resource(status = Status.PENDING, data = data, message = null)

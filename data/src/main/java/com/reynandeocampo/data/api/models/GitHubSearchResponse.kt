@@ -20,8 +20,11 @@ data class GitHubResponse(
         return items.map {
             GitRepo(
                 Owner(it.owner.login, it.owner.avatarUrl, it.owner.url),
+                it.fullName,
+                it.description,
                 it.htmlUrl,
-                it?.description
+                it.createdAt,
+                it.updatedAt
             )
         }
     }
@@ -50,7 +53,13 @@ data class ItemJson(
     var htmlUrl: String,
 
     @Json(name = "description")
-    var description: String? = null
+    var description: String? = null,
+
+    @Json(name = "created_at")
+    var createdAt: String,
+
+    @Json(name = "updated_at")
+    var updatedAt: String
 )
 
 data class OwnerJson(

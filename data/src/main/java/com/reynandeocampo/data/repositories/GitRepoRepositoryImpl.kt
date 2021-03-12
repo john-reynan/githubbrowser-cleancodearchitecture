@@ -1,6 +1,6 @@
 package com.reynandeocampo.data.repositories
 
-import com.reynandeocampo.data.repositories.datasources.remote.GitHubDataSourceRemote
+import com.reynandeocampo.data.repositories.datasources.GitHubDataSourceRemote
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.domain.repositories.GitRepoRepository
 
