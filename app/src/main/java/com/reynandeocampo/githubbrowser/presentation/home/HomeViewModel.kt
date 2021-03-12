@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation
+package com.reynandeocampo.githubbrowser.presentation.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
 
-class SharedViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     @Inject
     lateinit var useCases: UseCases
@@ -31,7 +31,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun searchGitHubRepo(query: String, perPage: Int, page: Int) {
         coroutineScope.launch {
-            gitHubRepoList.postValue(Resource.loading(data = null))
+            if (page == 1) {
+                gitHubRepoList.postValue(Resource.loading(data = null))
+            }
 
             try {
                 val data: List<GitRepo> = useCases.searchGitRepo(query, perPage, page)
@@ -58,6 +60,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setObservablesToPending() {
         gitHubRepoList.postValue(Resource.pending(data = null))
+        currentPage.postValue(0)
     }
 
     fun updateCurrentPage(page: Int) {

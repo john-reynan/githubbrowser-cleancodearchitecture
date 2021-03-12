@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.githubrepositories
+package com.reynandeocampo.githubbrowser.presentation
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView

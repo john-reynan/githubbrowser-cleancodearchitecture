@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.githubrepositories
+package com.reynandeocampo.githubbrowser.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -80,7 +80,7 @@ class GitHubRepoAdapter(private val onClickListener: OnClickListener<GitRepo>) :
     fun addLoadingView() {
         isLoadingAdded = true
         val owner = Owner("", "", "")
-        val gitRepo = GitRepo(owner, "")
+        val gitRepo = GitRepo(owner, "", "", "", "", "")
         add(gitRepo)
     }
 
