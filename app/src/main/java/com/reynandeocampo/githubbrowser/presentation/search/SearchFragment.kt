@@ -38,12 +38,13 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.searchRepo.isIconified = false
-        binding.searchRepo.queryHint = "Search places"
+        binding.searchRepo.queryHint = "Search repositories"
         binding.searchRepo.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query!!.isNotBlank()) {
                     searchRepo(query)
+                } else {
+                    sharedViewModel.setObservablesToPending()
                 }
                 return false
             }
@@ -60,19 +61,29 @@ class SearchFragment : Fragment() {
                     }
                     customTimer!!.start()
                 } else {
-//                    showDefaultView()
+                    sharedViewModel.setObservablesToPending()
                 }
 
                 return false
             }
         })
+
+        binding.searchRepo.setOnCloseListener {
+            sharedViewModel.setObservablesToPending()
+            hideSoftKeyboard()
+            false
+        }
+    }
+
+    private fun hideSoftKeyboard() {
+
     }
 
     private fun searchRepo(query: String) {
         if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
             sharedViewModel.searchGitHubRepo(query, 0, 0)
         } else {
-//            showNoResult()
+            sharedViewModel.setObservablesToPending()
             showToastMessage("Please turn on your internet connection.")
         }
     }

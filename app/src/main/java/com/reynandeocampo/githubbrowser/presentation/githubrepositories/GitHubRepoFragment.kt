@@ -48,18 +48,26 @@ class GitHubRepoFragment : Fragment() {
             it?.let { resource ->
                 when (resource.status) {
                     Status.PENDING -> {
+                        showPendingView()
                     }
                     Status.LOADING -> {
+                        showLoadingView()
                     }
                     Status.SUCCESS -> {
                         resource.data?.let { data ->
-                            renderData(data)
+                            if (data.isNotEmpty()) {
+                                renderData(data)
+                                showResultView()
+                            } else {
+                                showNoResultView()
+                            }
                         }
                     }
                     Status.ERROR -> {
                         resource.message?.let { message ->
                             showToastMessage(message)
                         }
+                        showNoResultView()
                     }
                 }
             }
@@ -72,6 +80,34 @@ class GitHubRepoFragment : Fragment() {
 
     private fun renderData(data: List<GitRepo>) {
         (binding.recyclerViewRepo.adapter as GitHubRepoAdapter).gitRepos = data
+    }
+
+    private fun showPendingView() {
+        binding.recyclerViewRepo.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        binding.noResultLayout.visibility = View.GONE
+        binding.defaultLayout.visibility = View.VISIBLE
+    }
+
+    private fun showLoadingView() {
+        binding.recyclerViewRepo.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+        binding.noResultLayout.visibility = View.GONE
+        binding.defaultLayout.visibility = View.GONE
+    }
+
+    private fun showNoResultView() {
+        binding.recyclerViewRepo.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
+        binding.noResultLayout.visibility = View.VISIBLE
+        binding.defaultLayout.visibility = View.GONE
+    }
+
+    private fun showResultView() {
+        binding.recyclerViewRepo.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
+        binding.noResultLayout.visibility = View.GONE
+        binding.defaultLayout.visibility = View.GONE
     }
 
     private fun openUrlInBrowser(url: String) {
