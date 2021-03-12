@@ -1,8 +1,8 @@
 package com.reynandeocampo.domain.usecases
 
-import com.reynandeocampo.domain.repositories.GitRepository
+import com.reynandeocampo.domain.repositories.GitRepoRepository
 
-class SearchGitRepo(private val gitRepository: GitRepository) {
+class SearchGitRepo(private val gitRepoRepository: GitRepoRepository) {
     suspend operator fun invoke(query: String, perPage: Int, page: Int) =
-        gitRepository.searchGitRepo(query, perPage, page)
+        gitRepoRepository.searchGitRepo(query, perPage, page)
 }
