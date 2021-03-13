@@ -12,5 +12,6 @@ class UseCasesModule {
 
     @Singleton
     @Provides
-    fun getUseCases(gitRepoRepository: GitRepoRepository) = UseCases(SearchGitRepo(gitRepoRepository))
+    fun getUseCases(gitRepoRepository: GitRepoRepository) =
+        UseCases(SearchGitRepo(gitRepoRepository))
 }
