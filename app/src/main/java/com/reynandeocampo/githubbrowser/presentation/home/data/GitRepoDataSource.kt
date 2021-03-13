@@ -16,6 +16,7 @@ class GitRepoDataSource(
 ) : PageKeyedDataSource<Int, GitRepo>() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private var retryQuery: (() -> Any)? = null
 
     var state: MutableLiveData<State> = MutableLiveData()
 
@@ -24,6 +25,7 @@ class GitRepoDataSource(
         callback: LoadInitialCallback<Int, GitRepo>
     ) {
         updateState(State.LOADING)
+        retryQuery = { loadInitial(params, callback) }
         coroutineScope.launch {
             try {
                 val data: List<GitRepo> = useCases.searchGitRepo(query, params.requestedLoadSize, 1)
@@ -39,6 +41,7 @@ class GitRepoDataSource(
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, GitRepo>) {
         updateState(State.LOADING)
+        retryQuery = { loadAfter(params, callback) }
         coroutineScope.launch {
             try {
                 val data: List<GitRepo> =
@@ -62,5 +65,11 @@ class GitRepoDataSource(
 
     private fun updateState(state: State) {
         this.state.postValue(state)
+    }
+
+    fun retryFailedQuery() {
+        val prevQuery = retryQuery
+        retryQuery = null
+        prevQuery?.invoke()
     }
 }

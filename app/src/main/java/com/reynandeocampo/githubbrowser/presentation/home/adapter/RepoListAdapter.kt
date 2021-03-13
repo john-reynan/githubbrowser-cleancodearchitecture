@@ -1,6 +1,7 @@
 package com.reynandeocampo.githubbrowser.presentation.home.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.paging.PagedListAdapter
@@ -9,9 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.databinding.ListItemFooterBinding
 import com.reynandeocampo.githubbrowser.databinding.ListItemRepoBinding
+import com.reynandeocampo.githubbrowser.presentation.OnClickListener
 import com.reynandeocampo.githubbrowser.presentation.home.data.State
 
-class RepoListAdapter() : PagedListAdapter<GitRepo, RecyclerView.ViewHolder>(GitRepoDiffCallback) {
+class RepoListAdapter(
+    private val onClickListener: OnClickListener<GitRepo>,
+    private val retry: () -> Unit
+) : PagedListAdapter<GitRepo, RecyclerView.ViewHolder>(GitRepoDiffCallback) {
 
     private val DATA_VIEW_TYPE = 1
     private val FOOTER_VIEW_TYPE = 2
@@ -50,7 +55,17 @@ class RepoListAdapter() : PagedListAdapter<GitRepo, RecyclerView.ViewHolder>(Git
                 repoViewHolder.viewDataBinding.also { binding ->
                     binding.txtName.text = gitRepo.owner.userName
                     binding.txtDescription.text = gitRepo.description
-//                    binding.root.setOnClickListener { onClickListener.onClick(gitRepo) }
+                    binding.root.setOnClickListener { onClickListener.onClick(gitRepo) }
+                }
+            }
+            else -> {
+                val footerViewHolder = holder as FooterViewHolder
+                footerViewHolder.viewDataBinding.also { binding ->
+                    binding.progressBar.visibility =
+                        if (state == State.LOADING) View.VISIBLE else View.INVISIBLE
+                    binding.txtError.visibility =
+                        if (state == State.ERROR) View.VISIBLE else View.INVISIBLE
+                    binding.txtError.setOnClickListener { retry() }
                 }
             }
         }

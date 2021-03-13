@@ -40,6 +40,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         return gitHubRepoList.value?.isEmpty() ?: true
     }
 
+    fun retry() {
+        dataSource.getDataSource()?.retryFailedQuery()
+    }
+
     private fun pagedListConfig() = PagedList.Config.Builder()
         .setPageSize(pageSize)
         .setInitialLoadSizeHint(pageSize)

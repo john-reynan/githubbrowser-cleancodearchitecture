@@ -12,6 +12,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
+import com.reynandeocampo.githubbrowser.presentation.OnClickListener
 import com.reynandeocampo.githubbrowser.presentation.home.adapter.RepoListAdapter
 import com.reynandeocampo.githubbrowser.presentation.home.data.State
 
@@ -48,7 +49,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun initAdapter() {
-        repoListAdapter = RepoListAdapter()
+        repoListAdapter = RepoListAdapter(OnClickListener { openUrlInBrowser(it.url) }) {
+            homeViewModel.retry()
+        }
         binding.recyclerViewRepo.adapter = repoListAdapter
     }
 
