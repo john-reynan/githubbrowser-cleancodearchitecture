@@ -9,11 +9,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
+import com.reynandeocampo.githubbrowser.R
 import com.reynandeocampo.githubbrowser.databinding.ListItemFooterBinding
 import com.reynandeocampo.githubbrowser.databinding.ListItemRepoBinding
 import com.reynandeocampo.githubbrowser.presentation.OnClickListener
 import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.FooterViewHolder
 import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.RepoViewHolder
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RepoListAdapter(
     private val onClickListener: OnClickListener<GitRepo>,
@@ -52,9 +55,12 @@ class RepoListAdapter(
                 val gitRepo = getItem(position) as GitRepo
 
                 repoViewHolder.viewDataBinding.also { binding ->
+                    val updatedAtPrefix = holder.itemView.context.getString(R.string.txt_updated_at)
+                    val updatedAtDate = formatDate(gitRepo.updatedAt)
+
                     binding.txtName.text = gitRepo.title
                     binding.txtDescription.text = gitRepo.description
-                    binding.txtUpdatedAt.text = gitRepo.updatedAt
+                    binding.txtUpdatedAt.text = String.format(updatedAtPrefix, updatedAtDate)
                     binding.root.setOnClickListener { onClickListener.onClick(gitRepo) }
                 }
             }
@@ -81,6 +87,14 @@ class RepoListAdapter(
 
     private fun hasFooter(): Boolean {
         return super.getItemCount() != 0 && (status == Status.LOADING || status == Status.ERROR)
+    }
+
+    private fun formatDate(date: String): String {
+        val newFormat = SimpleDateFormat("MMM dd, yyy", Locale.getDefault())
+        val utcFormat = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'", Locale.getDefault())
+        utcFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val utcDate = utcFormat.parse(date)
+        return newFormat.format(utcDate!!)
     }
 
     fun setStatus(state: Status) {

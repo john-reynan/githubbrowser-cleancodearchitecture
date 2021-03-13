@@ -3,4 +3,5 @@
     <string name="txt_on_idle">Search GitHub Repositories</string>
     <string name="txt_no_result_found">No Result Found.</string>
     <string name="txt_retry">Tap to Retry</string>
+    <string name="txt_updated_at">Updated at %s</string>
 </resources>
