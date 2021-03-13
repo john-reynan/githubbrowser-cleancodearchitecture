@@ -3,6 +3,7 @@ package com.reynandeocampo.githubbrowser.presentation.home.data
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.data.api.Resource
 import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,7 @@ class GitRepoDataSource(
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var retryQuery: (() -> Any)? = null
 
-    var networkStatus: MutableLiveData<Status> = MutableLiveData()
+    var networkStatus: MutableLiveData<Resource<Status>> = MutableLiveData()
     var viewStatus: MutableLiveData<Status> = MutableLiveData()
 
     override fun loadInitial(
@@ -31,19 +32,29 @@ class GitRepoDataSource(
         if (query.isEmpty()) {
             updateViewStatus(Status.IDLE)
         } else {
-            updateNetworkStatus(Status.LOADING)
+            updateNetworkStatus(Resource.loading(data = null))
             updateViewStatus(Status.LOADING)
             coroutineScope.launch {
                 try {
                     val data = useCases.searchGitRepo(query, params.requestedLoadSize, 1)
-                    updateNetworkStatus(Status.SUCCESS)
+                    updateNetworkStatus(Resource.success(data = Status.SUCCESS))
                     updateViewStatus(Status.SUCCESS)
                     callback.onResult(data, null, 2)
                 } catch (e: HttpException) {
-                    updateNetworkStatus(Status.ERROR)
+                    updateNetworkStatus(
+                        Resource.error(
+                            data = null,
+                            message = e.message ?: "Unknown error occurred"
+                        )
+                    )
                     updateViewStatus(Status.ERROR)
                 } catch (e: Exception) {
-                    updateNetworkStatus(Status.ERROR)
+                    updateNetworkStatus(
+                        Resource.error(
+                            data = null,
+                            message = e.message ?: "Unknown error occurred"
+                        )
+                    )
                     updateViewStatus(Status.ERROR)
                 }
             }
@@ -53,16 +64,26 @@ class GitRepoDataSource(
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, GitRepo>) {
         retryQuery = { loadAfter(params, callback) }
 
-        updateNetworkStatus(Status.LOADING)
+        updateNetworkStatus(Resource.loading(data = null))
         coroutineScope.launch {
             try {
                 val data = useCases.searchGitRepo(query, params.requestedLoadSize, params.key)
-                updateNetworkStatus(Status.SUCCESS)
+                updateNetworkStatus(Resource.success(data = Status.SUCCESS))
                 callback.onResult(data, params.key + 1)
             } catch (e: HttpException) {
-                updateNetworkStatus(Status.ERROR)
+                updateNetworkStatus(
+                    Resource.error(
+                        data = null,
+                        message = e.message ?: "Unknown error occurred"
+                    )
+                )
             } catch (e: Exception) {
-                updateNetworkStatus(Status.ERROR)
+                updateNetworkStatus(
+                    Resource.error(
+                        data = null,
+                        message = e.message ?: "Unknown error occurred"
+                    )
+                )
             }
         }
     }
@@ -74,8 +95,8 @@ class GitRepoDataSource(
         coroutineScope.cancel()
     }
 
-    private fun updateNetworkStatus(state: Status) {
-        this.networkStatus.postValue(state)
+    private fun updateNetworkStatus(resource: Resource<Status>) {
+        this.networkStatus.postValue(resource)
     }
 
     private fun updateViewStatus(state: Status) {

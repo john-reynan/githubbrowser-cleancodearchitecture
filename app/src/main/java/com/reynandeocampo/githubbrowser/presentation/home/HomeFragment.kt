@@ -97,20 +97,23 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.networkStatus.observe(viewLifecycleOwner, {
-            it?.let { status ->
+            it?.let { resource ->
+                resource.message?.let { message ->
+                    showToastMessage(message)
+                }
+
                 binding.layoutLoading.root.visibility =
-                    if (homeViewModel.listIsEmpty() && status == Status.LOADING) View.VISIBLE else View.GONE
+                    if (homeViewModel.listIsEmpty() && resource.status == Status.LOADING) View.VISIBLE else View.GONE
                 binding.layoutNoResult.root.visibility =
-                    if (homeViewModel.listIsEmpty() && status == Status.ERROR) View.VISIBLE else View.GONE
+                    if (homeViewModel.listIsEmpty() && resource.status == Status.ERROR) View.VISIBLE else View.GONE
                 if (!homeViewModel.listIsEmpty()) {
-                    repoListAdapter.setStatus(status)
+                    repoListAdapter.setStatus(resource.status)
                 }
             }
         })
 
         homeViewModel.viewStatus.observe(viewLifecycleOwner, {
             it?.let { status ->
-                showToastMessage(status.name)
                 when (status) {
                     Status.IDLE -> showIdleView()
                     Status.LOADING -> showLoadingView()
