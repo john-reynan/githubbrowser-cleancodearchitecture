@@ -52,8 +52,9 @@ class RepoListAdapter(
                 val gitRepo = getItem(position) as GitRepo
 
                 repoViewHolder.viewDataBinding.also { binding ->
-                    binding.txtName.text = gitRepo.owner.userName
+                    binding.txtName.text = gitRepo.title
                     binding.txtDescription.text = gitRepo.description
+                    binding.txtUpdatedAt.text = gitRepo.updatedAt
                     binding.root.setOnClickListener { onClickListener.onClick(gitRepo) }
                 }
             }

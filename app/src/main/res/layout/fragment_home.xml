@@ -43,9 +43,9 @@
                 layout="@layout/layout_no_result" />
 
             <include
-                android:visibility="gone"
                 android:id="@+id/layout_default"
-                layout="@layout/layout_default" />
+                layout="@layout/layout_default"
+                android:visibility="gone" />
 
         </FrameLayout>
 
