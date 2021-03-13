@@ -86,7 +86,6 @@ class HomeFragment : Fragment() {
     }
 
     fun resetToIdle() {
-        showToastMessage("closed")
         homeViewModel.updateViewStatus(Status.IDLE)
     }
 
