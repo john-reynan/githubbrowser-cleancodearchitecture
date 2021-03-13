@@ -118,9 +118,8 @@ class HomeFragment : Fragment() {
                     if (homeViewModel.listIsEmpty() && resource.status == Status.LOADING) View.VISIBLE else View.GONE
                 binding.layoutNoResult.root.visibility =
                     if (homeViewModel.listIsEmpty() && resource.status == Status.ERROR) View.VISIBLE else View.GONE
-                if (!homeViewModel.listIsEmpty()) {
-                    repoListAdapter.setStatus(resource.status)
-                }
+
+                repoListAdapter.setStatus(resource.status)
             }
         })
 

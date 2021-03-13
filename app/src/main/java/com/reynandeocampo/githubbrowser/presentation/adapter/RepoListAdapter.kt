@@ -99,7 +99,7 @@ class RepoListAdapter(
 
     fun setStatus(state: Status) {
         this.status = state
-        notifyItemChanged(super.getItemCount())
+        notifyDataSetChanged()
     }
 
     companion object {
