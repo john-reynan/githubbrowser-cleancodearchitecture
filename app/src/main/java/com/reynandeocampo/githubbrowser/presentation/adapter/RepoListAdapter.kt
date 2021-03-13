@@ -12,16 +12,15 @@ import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.databinding.ListItemFooterBinding
 import com.reynandeocampo.githubbrowser.databinding.ListItemRepoBinding
 import com.reynandeocampo.githubbrowser.presentation.OnClickListener
+import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.FooterViewHolder
+import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.RepoViewHolder
 
 class RepoListAdapter(
     private val onClickListener: OnClickListener<GitRepo>,
     private val retry: () -> Unit
 ) : PagedListAdapter<GitRepo, RecyclerView.ViewHolder>(GitRepoDiffCallback) {
 
-    private val DATA_VIEW_TYPE = 1
-    private val FOOTER_VIEW_TYPE = 2
-
-    private var state = Status.LOADING
+    private var status = Status.LOADING
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -62,9 +61,9 @@ class RepoListAdapter(
                 val footerViewHolder = holder as FooterViewHolder
                 footerViewHolder.viewDataBinding.also { binding ->
                     binding.progressBar.visibility =
-                        if (state == Status.LOADING) View.VISIBLE else View.INVISIBLE
+                        if (status == Status.LOADING) View.VISIBLE else View.INVISIBLE
                     binding.txtError.visibility =
-                        if (state == Status.ERROR) View.VISIBLE else View.INVISIBLE
+                        if (status == Status.ERROR) View.VISIBLE else View.INVISIBLE
                     binding.txtError.setOnClickListener { retry() }
                 }
             }
@@ -80,11 +79,11 @@ class RepoListAdapter(
     }
 
     private fun hasFooter(): Boolean {
-        return super.getItemCount() != 0 && (state == Status.LOADING || state == Status.ERROR)
+        return super.getItemCount() != 0 && (status == Status.LOADING || status == Status.ERROR)
     }
 
     fun setStatus(state: Status) {
-        this.state = state
+        this.status = state
         notifyItemChanged(super.getItemCount())
     }
 
@@ -100,3 +99,6 @@ class RepoListAdapter(
         }
     }
 }
+
+private const val DATA_VIEW_TYPE = 1
+private const val FOOTER_VIEW_TYPE = 2

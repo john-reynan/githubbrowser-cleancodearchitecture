@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.adapter
+package com.reynandeocampo.githubbrowser.presentation.adapter.viewholders
 
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
