@@ -1,29 +1,23 @@
 package com.reynandeocampo.githubbrowser.presentation.home.data
 
-import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.reynandeocampo.data.UseCases
 import com.reynandeocampo.domain.models.GitRepo
-import com.reynandeocampo.githubbrowser.App
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import javax.inject.Inject
 
-class GitRepoDataSource(application: Application) : PageKeyedDataSource<Int, GitRepo>() {
-
-    @Inject
-    lateinit var useCases: UseCases
+class GitRepoDataSource(
+    private val useCases: UseCases,
+    private val query: String
+) : PageKeyedDataSource<Int, GitRepo>() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     var state: MutableLiveData<State> = MutableLiveData()
-
-    init {
-        (application as App).mainComponent.inject(this)
-    }
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
@@ -32,7 +26,7 @@ class GitRepoDataSource(application: Application) : PageKeyedDataSource<Int, Git
         updateState(State.LOADING)
         coroutineScope.launch {
             try {
-                val data: List<GitRepo> = useCases.searchGitRepo("u", params.requestedLoadSize, 1)
+                val data: List<GitRepo> = useCases.searchGitRepo(query, params.requestedLoadSize, 1)
                 updateState(State.DONE)
                 callback.onResult(data, null, 2)
             } catch (e: HttpException) {
@@ -47,7 +41,8 @@ class GitRepoDataSource(application: Application) : PageKeyedDataSource<Int, Git
         updateState(State.LOADING)
         coroutineScope.launch {
             try {
-                val data: List<GitRepo> = useCases.searchGitRepo("u", params.requestedLoadSize, params.key)
+                val data: List<GitRepo> =
+                    useCases.searchGitRepo(query, params.requestedLoadSize, params.key)
                 updateState(State.DONE)
                 callback.onResult(data, params.key + 1)
             } catch (e: HttpException) {
@@ -58,11 +53,11 @@ class GitRepoDataSource(application: Application) : PageKeyedDataSource<Int, Git
         }
     }
 
-    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, GitRepo>) {
-    }
+    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, GitRepo>) { }
 
-    private fun searchGitHubRepo(query: String) {
-
+    override fun invalidate() {
+        super.invalidate()
+        coroutineScope.cancel()
     }
 
     private fun updateState(state: State) {

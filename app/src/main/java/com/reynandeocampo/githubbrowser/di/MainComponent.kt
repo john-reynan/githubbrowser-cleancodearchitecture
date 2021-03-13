@@ -13,5 +13,4 @@ import javax.inject.Singleton
 @Component(modules = [AppModule::class, NetworkModule::class, RepositoryModule::class, UseCasesModule::class])
 interface MainComponent {
     fun inject(homeViewModel: HomeViewModel)
-    fun inject(gitRepoDataSource: GitRepoDataSource)
 }

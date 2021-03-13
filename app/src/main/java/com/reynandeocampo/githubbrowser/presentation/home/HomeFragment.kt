@@ -57,7 +57,7 @@ class HomeFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 if (query.isNotBlank()) {
-//                    getInitialPage(query)
+                    homeViewModel.searchRepo(query)
                 } else {
                 }
                 return false
@@ -71,7 +71,7 @@ class HomeFragment : Fragment() {
 
                 if (newText.isNotBlank()) {
                     customTimer = CustomTimer(1000, 500) {
-//                        getInitialPage(newText)
+                        homeViewModel.searchRepo(newText)
                     }
                     customTimer!!.start()
                 } else {
@@ -93,7 +93,7 @@ class HomeFragment : Fragment() {
             repoListAdapter.submitList(it)
         })
 
-        homeViewModel.getState().observe(viewLifecycleOwner, { state ->
+        homeViewModel.networkState.observe(viewLifecycleOwner, { state ->
             binding.layoutLoading.root.visibility =
                 if (homeViewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
             binding.layoutNoResult.root.visibility =
