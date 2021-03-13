@@ -11,10 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
 import com.reynandeocampo.githubbrowser.presentation.OnClickListener
 import com.reynandeocampo.githubbrowser.presentation.home.adapter.RepoListAdapter
-import com.reynandeocampo.githubbrowser.presentation.home.data.State
 
 class HomeFragment : Fragment() {
 
@@ -98,11 +98,11 @@ class HomeFragment : Fragment() {
 
         homeViewModel.networkState.observe(viewLifecycleOwner, { state ->
             binding.layoutLoading.root.visibility =
-                if (homeViewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
+                if (homeViewModel.listIsEmpty() && state == Status.LOADING) View.VISIBLE else View.GONE
             binding.layoutNoResult.root.visibility =
-                if (homeViewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
+                if (homeViewModel.listIsEmpty() && state == Status.ERROR) View.VISIBLE else View.GONE
             if (!homeViewModel.listIsEmpty()) {
-                repoListAdapter.setState(state ?: State.DONE)
+                repoListAdapter.setState(state ?: Status.SUCCESS)
             }
         })
     }

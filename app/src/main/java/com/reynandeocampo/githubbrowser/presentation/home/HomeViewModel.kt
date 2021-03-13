@@ -7,9 +7,9 @@ import androidx.lifecycle.Transformations.switchMap
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.githubbrowser.App
 import com.reynandeocampo.githubbrowser.presentation.home.data.GitRepoDataSourceFactory
-import com.reynandeocampo.githubbrowser.presentation.home.data.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -29,7 +29,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val dataSource = GitRepoDataSourceFactory(useCases)
 
     val gitHubRepoList = LivePagedListBuilder(dataSource, pagedListConfig()).build()
-    val networkState: LiveData<State> = switchMap(dataSource.gitRepoDataSourceLiveData) { it.state }
+    val networkState: LiveData<Status> =
+        switchMap(dataSource.gitRepoDataSourceLiveData) { it.state }
 
     fun searchRepo(query: String) {
         if (dataSource.getQuery() == query) return

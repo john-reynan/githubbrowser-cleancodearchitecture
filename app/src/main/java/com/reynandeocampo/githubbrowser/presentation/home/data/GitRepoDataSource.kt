@@ -3,6 +3,7 @@ package com.reynandeocampo.githubbrowser.presentation.home.data
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,40 +19,42 @@ class GitRepoDataSource(
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var retryQuery: (() -> Any)? = null
 
-    var state: MutableLiveData<State> = MutableLiveData()
+    var state: MutableLiveData<Status> = MutableLiveData()
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
         callback: LoadInitialCallback<Int, GitRepo>
     ) {
-        updateState(State.LOADING)
         retryQuery = { loadInitial(params, callback) }
+
+        updateState(Status.LOADING)
         coroutineScope.launch {
             try {
                 val data: List<GitRepo> = useCases.searchGitRepo(query, params.requestedLoadSize, 1)
-                updateState(State.DONE)
+                updateState(Status.SUCCESS)
                 callback.onResult(data, null, 2)
             } catch (e: HttpException) {
-                updateState(State.ERROR)
+                updateState(Status.ERROR)
             } catch (e: Exception) {
-                updateState(State.ERROR)
+                updateState(Status.ERROR)
             }
         }
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, GitRepo>) {
-        updateState(State.LOADING)
         retryQuery = { loadAfter(params, callback) }
+
+        updateState(Status.LOADING)
         coroutineScope.launch {
             try {
                 val data: List<GitRepo> =
                     useCases.searchGitRepo(query, params.requestedLoadSize, params.key)
-                updateState(State.DONE)
+                updateState(Status.SUCCESS)
                 callback.onResult(data, params.key + 1)
             } catch (e: HttpException) {
-                updateState(State.ERROR)
+                updateState(Status.ERROR)
             } catch (e: Exception) {
-                updateState(State.ERROR)
+                updateState(Status.ERROR)
             }
         }
     }
@@ -63,7 +66,7 @@ class GitRepoDataSource(
         coroutineScope.cancel()
     }
 
-    private fun updateState(state: State) {
+    private fun updateState(state: Status) {
         this.state.postValue(state)
     }
 

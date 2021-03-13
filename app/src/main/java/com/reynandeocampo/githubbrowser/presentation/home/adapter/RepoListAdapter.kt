@@ -7,11 +7,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.databinding.ListItemFooterBinding
 import com.reynandeocampo.githubbrowser.databinding.ListItemRepoBinding
 import com.reynandeocampo.githubbrowser.presentation.OnClickListener
-import com.reynandeocampo.githubbrowser.presentation.home.data.State
 
 class RepoListAdapter(
     private val onClickListener: OnClickListener<GitRepo>,
@@ -21,7 +21,7 @@ class RepoListAdapter(
     private val DATA_VIEW_TYPE = 1
     private val FOOTER_VIEW_TYPE = 2
 
-    private var state = State.LOADING
+    private var state = Status.LOADING
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -62,9 +62,9 @@ class RepoListAdapter(
                 val footerViewHolder = holder as FooterViewHolder
                 footerViewHolder.viewDataBinding.also { binding ->
                     binding.progressBar.visibility =
-                        if (state == State.LOADING) View.VISIBLE else View.INVISIBLE
+                        if (state == Status.LOADING) View.VISIBLE else View.INVISIBLE
                     binding.txtError.visibility =
-                        if (state == State.ERROR) View.VISIBLE else View.INVISIBLE
+                        if (state == Status.ERROR) View.VISIBLE else View.INVISIBLE
                     binding.txtError.setOnClickListener { retry() }
                 }
             }
@@ -80,10 +80,10 @@ class RepoListAdapter(
     }
 
     private fun hasFooter(): Boolean {
-        return super.getItemCount() != 0 && (state == State.LOADING || state == State.ERROR)
+        return super.getItemCount() != 0 && (state == Status.LOADING || state == Status.ERROR)
     }
 
-    fun setState(state: State) {
+    fun setState(state: Status) {
         this.state = state
         notifyItemChanged(super.getItemCount())
     }
