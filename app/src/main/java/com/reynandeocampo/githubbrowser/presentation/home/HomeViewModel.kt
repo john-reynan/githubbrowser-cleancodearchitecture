@@ -2,11 +2,18 @@ package com.reynandeocampo.githubbrowser.presentation.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.reynandeocampo.data.UseCases
 import com.reynandeocampo.data.api.Resource
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.App
+import com.reynandeocampo.githubbrowser.presentation.home.data.GitRepoDataSource
+import com.reynandeocampo.githubbrowser.presentation.home.data.GitRepoDataSourceFactory
+import com.reynandeocampo.githubbrowser.presentation.home.data.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,50 +27,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    val gitHubRepoList = MutableLiveData<Resource<List<GitRepo>>>()
+    val pageSize = 15
 
-    val currentPage = MutableLiveData(0)
+    private val gitRepoDataSourceFactory: GitRepoDataSourceFactory
+
+    val gitHubRepoList: LiveData<PagedList<GitRepo>>
 
     init {
         (application as App).mainComponent.inject(this)
-        setObservablesToPending()
+        gitRepoDataSourceFactory = GitRepoDataSourceFactory(application)
+        val config = PagedList.Config.Builder()
+            .setPageSize(pageSize)
+            .setInitialLoadSizeHint(pageSize)
+            .setEnablePlaceholders(false)
+            .build()
+        gitHubRepoList = LivePagedListBuilder(gitRepoDataSourceFactory, config).build()
     }
 
-    fun searchGitHubRepo(query: String, perPage: Int, page: Int) {
-        coroutineScope.launch {
-            if (page == 1) {
-                gitHubRepoList.postValue(Resource.loading(data = null))
-            }
-
-            try {
-                val data: List<GitRepo> = useCases.searchGitRepo(query, perPage, page)
-
-                gitHubRepoList.postValue(Resource.success(data = data))
-                updateCurrentPage(page)
-            } catch (e: HttpException) {
-                gitHubRepoList.postValue(
-                    Resource.error(
-                        data = null,
-                        message = e.message ?: "Unknown error occurred"
-                    )
-                )
-            } catch (e: Exception) {
-                gitHubRepoList.postValue(
-                    Resource.error(
-                        data = null,
-                        message = e.message ?: "Unknown error occurred"
-                    )
-                )
-            }
-        }
+    override fun onCleared() {
+        super.onCleared()
     }
 
-    fun setObservablesToPending() {
-        gitHubRepoList.postValue(Resource.pending(data = null))
-        currentPage.postValue(0)
-    }
+    fun getState(): LiveData<State> = Transformations.switchMap(
+        gitRepoDataSourceFactory.gitRepoDataSourceLiveData,
+        GitRepoDataSource::state
+    )
 
-    fun updateCurrentPage(page: Int) {
-        currentPage.postValue(page)
+    fun listIsEmpty(): Boolean {
+        return gitHubRepoList.value?.isEmpty() ?: true
     }
 }

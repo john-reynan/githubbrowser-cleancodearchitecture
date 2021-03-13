@@ -30,7 +30,6 @@
                 android:layout_height="match_parent"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/list_item_repo"
                 tools:visibility="visible" />
@@ -44,6 +43,7 @@
                 layout="@layout/layout_no_result" />
 
             <include
+                android:visibility="gone"
                 android:id="@+id/layout_default"
                 layout="@layout/layout_default" />
 

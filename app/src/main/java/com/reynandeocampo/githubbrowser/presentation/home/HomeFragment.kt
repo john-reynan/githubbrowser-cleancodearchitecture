@@ -11,37 +11,26 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.reynandeocampo.data.api.Status
-import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
-import com.reynandeocampo.githubbrowser.presentation.GitHubRepoAdapter
-import com.reynandeocampo.githubbrowser.presentation.OnClickListener
-import com.reynandeocampo.githubbrowser.presentation.PaginationScrollListener
-import com.reynandeocampo.githubbrowser.utils.ConnectivityHelper
+import com.reynandeocampo.githubbrowser.presentation.home.adapter.RepoListAdapter
+import com.reynandeocampo.githubbrowser.presentation.home.data.State
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var homeViewModel: HomeViewModel
-    private lateinit var gitHubRepoAdapter: GitHubRepoAdapter
+    private lateinit var repoListAdapter: RepoListAdapter
 
     private var customTimer: CustomTimer? = null
-
-    private val PAGE_START = 1
-    private var currentPage = PAGE_START
-
-    private var isLoading = false
-    private var isLastPage = false
-
-    private var searchText = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
+
         binding = FragmentHomeBinding.inflate(layoutInflater)
         homeViewModel = ViewModelProvider(requireActivity()).get(HomeViewModel::class.java)
-        setupRecyclerView()
+
+        initAdapter()
     }
 
     override fun onCreateView(
@@ -54,33 +43,13 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeViewModels()
         setupSearchView()
+        observeViewModels()
     }
 
-    private fun setupRecyclerView() {
-        gitHubRepoAdapter = GitHubRepoAdapter(OnClickListener {
-            openUrlInBrowser(it.url)
-        })
-
-        binding.recyclerViewRepo.adapter = gitHubRepoAdapter
-        binding.recyclerViewRepo.addOnScrollListener(object :
-            PaginationScrollListener(binding.recyclerViewRepo.layoutManager as LinearLayoutManager) {
-            override fun loadMoreItems() {
-                isLoading = true
-                currentPage += 1
-
-                loadNextPage()
-            }
-
-            override fun isLastPage(): Boolean {
-                return isLastPage
-            }
-
-            override fun isLoading(): Boolean {
-                return isLoading
-            }
-        })
+    private fun initAdapter() {
+        repoListAdapter = RepoListAdapter()
+        binding.recyclerViewRepo.adapter = repoListAdapter
     }
 
     private fun setupSearchView() {
@@ -88,11 +57,8 @@ class HomeFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 if (query.isNotBlank()) {
-                    searchText = query
-                    currentPage = 1
-                    searchRepo(query)
+//                    getInitialPage(query)
                 } else {
-                    homeViewModel.setObservablesToPending()
                 }
                 return false
             }
@@ -105,13 +71,10 @@ class HomeFragment : Fragment() {
 
                 if (newText.isNotBlank()) {
                     customTimer = CustomTimer(1000, 500) {
-                        searchText = newText
-                        currentPage = 1
-                        searchRepo(newText)
+//                        getInitialPage(newText)
                     }
                     customTimer!!.start()
                 } else {
-                    homeViewModel.setObservablesToPending()
                 }
 
                 return false
@@ -119,7 +82,7 @@ class HomeFragment : Fragment() {
         })
 
         binding.searchView.setOnCloseListener {
-            homeViewModel.setObservablesToPending()
+//            homeViewModel.setObservablesToPending()
             hideSoftKeyboard()
             false
         }
@@ -127,74 +90,23 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModels() {
         homeViewModel.gitHubRepoList.observe(viewLifecycleOwner, {
-            it?.let { resource ->
-                when (resource.status) {
-                    Status.PENDING -> {
-                        showPendingView()
-                    }
-                    Status.LOADING -> {
-                        showLoadingView()
-                    }
-                    Status.SUCCESS -> {
-                        resource.data?.let { data ->
-                            if (data.isNotEmpty()) {
-                                if (currentPage == 1) {
-                                    renderData(data as MutableList<GitRepo>)
-                                    showResultView()
-                                } else if (currentPage > 1) {
-                                    isLoading = false
-                                    gitHubRepoAdapter.addNewItems(data)
-                                }
-
-                            } else {
-                                showNoResultView()
-                            }
-                        }
-                    }
-                    Status.ERROR -> {
-                        resource.message?.let { message ->
-                            showToastMessage(message)
-                        }
-                        showNoResultView()
-                    }
-                }
-            }
+            repoListAdapter.submitList(it)
         })
 
-        homeViewModel.currentPage.observe(viewLifecycleOwner, {
-            it?.let { page ->
-                if (page == 1) {
-                    gitHubRepoAdapter.addLoadingView()
-                }
+        homeViewModel.getState().observe(viewLifecycleOwner, { state ->
+            binding.layoutLoading.root.visibility =
+                if (homeViewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
+            binding.layoutNoResult.root.visibility =
+                if (homeViewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
+            if (!homeViewModel.listIsEmpty()) {
+                repoListAdapter.setState(state ?: State.DONE)
             }
         })
-    }
-
-    private fun loadNextPage() {
-        if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
-            homeViewModel.searchGitHubRepo(searchText, 15, currentPage)
-        } else {
-            homeViewModel.setObservablesToPending()
-            showToastMessage("Please turn on your internet connection.")
-        }
-    }
-
-    private fun searchRepo(query: String) {
-        if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
-            homeViewModel.searchGitHubRepo(query, 15, 1)
-        } else {
-            homeViewModel.setObservablesToPending()
-            showToastMessage("Please turn on your internet connection.")
-        }
     }
 
     private fun openUrlInBrowser(url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(intent)
-    }
-
-    private fun renderData(data: MutableList<GitRepo>) {
-        (binding.recyclerViewRepo.adapter as GitHubRepoAdapter).gitRepos = data
     }
 
     private fun showPendingView() {
