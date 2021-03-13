@@ -23,8 +23,6 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var repoListAdapter: RepoListAdapter
 
-    private var customTimer: CustomTimer? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
@@ -73,16 +71,8 @@ class HomeFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (customTimer != null) {
-                    customTimer!!.cancel()
-                    customTimer = null
-                }
-
                 if (newText.isNotBlank()) {
-                    customTimer = CustomTimer(1000, 500) {
-                        searchRepo(newText)
-                    }
-                    customTimer!!.start()
+                    searchRepo(newText)
                 } else {
                     resetToIdle()
                 }
@@ -170,17 +160,5 @@ class HomeFragment : Fragment() {
 
     private fun showToastMessage(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
-    class CustomTimer(
-        millisInFuture: Long, countDownInterval: Long,
-        var onFinishCallback: () -> Unit
-    ) : CountDownTimer(millisInFuture, countDownInterval) {
-
-        override fun onFinish() {
-            onFinishCallback()
-        }
-
-        override fun onTick(p0: Long) {}
     }
 }
