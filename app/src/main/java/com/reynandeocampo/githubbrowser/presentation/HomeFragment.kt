@@ -12,8 +12,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.reynandeocampo.data.api.Status
+import com.reynandeocampo.githubbrowser.R
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
 import com.reynandeocampo.githubbrowser.presentation.adapter.RepoListAdapter
+import com.reynandeocampo.githubbrowser.utils.ConnectivityHelper
 
 class HomeFragment : Fragment() {
 
@@ -49,7 +51,11 @@ class HomeFragment : Fragment() {
 
     private fun initAdapter() {
         repoListAdapter = RepoListAdapter(OnClickListener { openUrlInBrowser(it.url) }) {
-            homeViewModel.retry()
+            if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
+                homeViewModel.retry()
+            } else {
+                showToastMessage(getString(R.string.txt_turn_on_internet))
+            }
         }
         binding.recyclerViewRepo.adapter = repoListAdapter
     }
@@ -59,7 +65,7 @@ class HomeFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 if (query.isNotBlank()) {
-                    homeViewModel.searchRepo(query)
+                    searchRepo(query)
                 } else {
                     resetToIdle()
                 }
@@ -74,7 +80,7 @@ class HomeFragment : Fragment() {
 
                 if (newText.isNotBlank()) {
                     customTimer = CustomTimer(1000, 500) {
-                        homeViewModel.searchRepo(newText)
+                        searchRepo(newText)
                     }
                     customTimer!!.start()
                 } else {
@@ -85,7 +91,15 @@ class HomeFragment : Fragment() {
         })
     }
 
-    fun resetToIdle() {
+    private fun searchRepo(query: String) {
+        if (ConnectivityHelper.isConnectedToNetwork(requireContext())) {
+            homeViewModel.searchRepo(query)
+        } else {
+            showToastMessage(getString(R.string.txt_turn_on_internet))
+        }
+    }
+
+    private fun resetToIdle() {
         homeViewModel.updateViewStatus(Status.IDLE)
     }
 
