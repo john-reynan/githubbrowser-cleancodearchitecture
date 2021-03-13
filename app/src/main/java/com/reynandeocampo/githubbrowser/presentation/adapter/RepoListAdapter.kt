@@ -105,7 +105,7 @@ class RepoListAdapter(
     companion object {
         val GitRepoDiffCallback = object : DiffUtil.ItemCallback<GitRepo>() {
             override fun areItemsTheSame(oldItem: GitRepo, newItem: GitRepo): Boolean {
-                return oldItem.title == newItem.title
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(oldItem: GitRepo, newItem: GitRepo): Boolean {
