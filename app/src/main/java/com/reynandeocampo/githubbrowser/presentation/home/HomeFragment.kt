@@ -62,6 +62,7 @@ class HomeFragment : Fragment() {
                 if (query.isNotBlank()) {
                     homeViewModel.searchRepo(query)
                 } else {
+                    resetToIdle()
                 }
                 return false
             }
@@ -78,17 +79,16 @@ class HomeFragment : Fragment() {
                     }
                     customTimer!!.start()
                 } else {
+                    resetToIdle()
                 }
-
                 return false
             }
         })
+    }
 
-        binding.searchView.setOnCloseListener {
-//            homeViewModel.setObservablesToPending()
-            hideSoftKeyboard()
-            false
-        }
+    fun resetToIdle() {
+        showToastMessage("closed")
+        homeViewModel.updateViewStatus(Status.IDLE)
     }
 
     private fun observeViewModels() {
@@ -96,13 +96,27 @@ class HomeFragment : Fragment() {
             repoListAdapter.submitList(it)
         })
 
-        homeViewModel.networkState.observe(viewLifecycleOwner, { state ->
-            binding.layoutLoading.root.visibility =
-                if (homeViewModel.listIsEmpty() && state == Status.LOADING) View.VISIBLE else View.GONE
-            binding.layoutNoResult.root.visibility =
-                if (homeViewModel.listIsEmpty() && state == Status.ERROR) View.VISIBLE else View.GONE
-            if (!homeViewModel.listIsEmpty()) {
-                repoListAdapter.setState(state ?: Status.SUCCESS)
+        homeViewModel.networkStatus.observe(viewLifecycleOwner, {
+            it?.let { status ->
+                binding.layoutLoading.root.visibility =
+                    if (homeViewModel.listIsEmpty() && status == Status.LOADING) View.VISIBLE else View.GONE
+                binding.layoutNoResult.root.visibility =
+                    if (homeViewModel.listIsEmpty() && status == Status.ERROR) View.VISIBLE else View.GONE
+                if (!homeViewModel.listIsEmpty()) {
+                    repoListAdapter.setStatus(status)
+                }
+            }
+        })
+
+        homeViewModel.viewStatus.observe(viewLifecycleOwner, {
+            it?.let { status ->
+                showToastMessage(status.name)
+                when (status) {
+                    Status.IDLE -> showIdleView()
+                    Status.LOADING -> showLoadingView()
+                    Status.SUCCESS -> showResultView()
+                    Status.ERROR -> showNoResultView()
+                }
             }
         })
     }
@@ -112,7 +126,7 @@ class HomeFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun showPendingView() {
+    private fun showIdleView() {
         binding.recyclerViewRepo.visibility = View.GONE
         binding.layoutLoading.root.visibility = View.GONE
         binding.layoutNoResult.root.visibility = View.GONE

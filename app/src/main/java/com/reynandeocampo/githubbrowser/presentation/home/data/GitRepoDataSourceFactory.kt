@@ -3,10 +3,13 @@ package com.reynandeocampo.githubbrowser.presentation.home.data
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
 
-class GitRepoDataSourceFactory(private val useCases: UseCases, private var query: String = "") :
-    DataSource.Factory<Int, GitRepo>() {
+class GitRepoDataSourceFactory(
+    private val useCases: UseCases,
+    private var query: String = String()
+) : DataSource.Factory<Int, GitRepo>() {
 
     val gitRepoDataSourceLiveData = MutableLiveData<GitRepoDataSource>()
 
@@ -27,5 +30,9 @@ class GitRepoDataSourceFactory(private val useCases: UseCases, private var query
     fun updateQuery(query: String) {
         this.query = query
         getDataSource()?.invalidate()
+    }
+
+    fun updateViewStatus(status: Status) {
+        gitRepoDataSourceLiveData.value?.viewStatus?.postValue(status)
     }
 }

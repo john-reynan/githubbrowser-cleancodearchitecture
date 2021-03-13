@@ -83,7 +83,7 @@ class RepoListAdapter(
         return super.getItemCount() != 0 && (state == Status.LOADING || state == Status.ERROR)
     }
 
-    fun setState(state: Status) {
+    fun setStatus(state: Status) {
         this.state = state
         notifyItemChanged(super.getItemCount())
     }

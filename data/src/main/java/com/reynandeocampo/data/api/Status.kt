@@ -1,7 +1,7 @@
 package com.reynandeocampo.data.api
 
 enum class Status {
-    PENDING,
+    IDLE,
     LOADING,
     SUCCESS,
     ERROR

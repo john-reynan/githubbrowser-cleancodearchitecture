@@ -2,7 +2,7 @@ package com.reynandeocampo.githubbrowser.presentation.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.switchMap
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -10,8 +10,6 @@ import com.reynandeocampo.data.UseCases
 import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.githubbrowser.App
 import com.reynandeocampo.githubbrowser.presentation.home.data.GitRepoDataSourceFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,14 +21,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         (application as App).mainComponent.inject(this)
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val pageSize = 15
-
     private val dataSource = GitRepoDataSourceFactory(useCases)
 
     val gitHubRepoList = LivePagedListBuilder(dataSource, pagedListConfig()).build()
-    val networkState: LiveData<Status> =
-        switchMap(dataSource.gitRepoDataSourceLiveData) { it.state }
+    val networkStatus = switchMap(dataSource.gitRepoDataSourceLiveData) { it.networkStatus }
+    val viewStatus = switchMap(dataSource.gitRepoDataSourceLiveData) { it.viewStatus }
 
     fun searchRepo(query: String) {
         if (dataSource.getQuery() == query) return
@@ -43,6 +39,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun retry() {
         dataSource.getDataSource()?.retryFailedQuery()
+    }
+
+    fun updateViewStatus(status: Status) {
+        dataSource.updateViewStatus(status)
+        dataSource.updateQuery("")
     }
 
     private fun pagedListConfig() = PagedList.Config.Builder()
