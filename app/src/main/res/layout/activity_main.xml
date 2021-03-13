@@ -7,7 +7,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_git_hub_repo"
-        android:name="com.reynandeocampo.githubbrowser.presentation.home.HomeFragment"
+        android:name="com.reynandeocampo.githubbrowser.presentation.HomeFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_home" />

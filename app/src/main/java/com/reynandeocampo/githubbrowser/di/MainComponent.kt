@@ -4,8 +4,7 @@ import com.reynandeocampo.githubbrowser.di.modules.AppModule
 import com.reynandeocampo.githubbrowser.di.modules.NetworkModule
 import com.reynandeocampo.githubbrowser.di.modules.RepositoryModule
 import com.reynandeocampo.githubbrowser.di.modules.UseCasesModule
-import com.reynandeocampo.githubbrowser.presentation.home.HomeViewModel
-import com.reynandeocampo.githubbrowser.presentation.home.data.GitRepoDataSource
+import com.reynandeocampo.githubbrowser.presentation.HomeViewModel
 import dagger.Component
 import javax.inject.Singleton
 

@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.home.adapter
+package com.reynandeocampo.githubbrowser.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.View

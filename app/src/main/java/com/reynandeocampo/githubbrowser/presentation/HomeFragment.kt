@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.home
+package com.reynandeocampo.githubbrowser.presentation
 
 import android.content.Intent
 import android.net.Uri
@@ -13,8 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
-import com.reynandeocampo.githubbrowser.presentation.OnClickListener
-import com.reynandeocampo.githubbrowser.presentation.home.adapter.RepoListAdapter
+import com.reynandeocampo.githubbrowser.presentation.adapter.RepoListAdapter
 
 class HomeFragment : Fragment() {
 

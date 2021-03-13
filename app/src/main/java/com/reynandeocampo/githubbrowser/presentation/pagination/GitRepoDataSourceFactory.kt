@@ -1,4 +1,4 @@
-package com.reynandeocampo.githubbrowser.presentation.home.data
+package com.reynandeocampo.githubbrowser.presentation.pagination
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
