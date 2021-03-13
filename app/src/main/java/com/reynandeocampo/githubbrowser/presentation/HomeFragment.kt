@@ -160,10 +160,6 @@ class HomeFragment : Fragment() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun hideSoftKeyboard() {
-
-    }
-
     class CustomTimer(
         millisInFuture: Long, countDownInterval: Long,
         var onFinishCallback: () -> Unit
