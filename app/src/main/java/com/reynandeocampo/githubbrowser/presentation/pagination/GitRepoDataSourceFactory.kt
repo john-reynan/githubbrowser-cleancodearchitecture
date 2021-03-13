@@ -3,7 +3,7 @@ package com.reynandeocampo.githubbrowser.presentation.pagination
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.reynandeocampo.data.UseCases
-import com.reynandeocampo.data.api.Status
+import com.reynandeocampo.data.api.Resource
 import com.reynandeocampo.domain.models.GitRepo
 
 class GitRepoDataSourceFactory(
@@ -32,7 +32,7 @@ class GitRepoDataSourceFactory(
         getDataSource()?.invalidate()
     }
 
-    fun updateViewStatus(status: Status) {
-        gitRepoDataSourceLiveData.value?.viewStatus?.postValue(status)
+    fun updateViewStatusToIdle() {
+        gitRepoDataSourceLiveData.value?.viewStatus?.postValue(Resource.idle(data = null))
     }
 }

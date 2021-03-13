@@ -6,7 +6,6 @@ import androidx.lifecycle.Transformations.switchMap
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.reynandeocampo.data.UseCases
-import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.githubbrowser.App
 import com.reynandeocampo.githubbrowser.presentation.pagination.GitRepoDataSourceFactory
 import javax.inject.Inject
@@ -40,8 +39,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         dataSource.getDataSource()?.retryFailedQuery()
     }
 
-    fun updateViewStatus(status: Status) {
-        dataSource.updateViewStatus(status)
+    fun updateViewStatusToIdle() {
+        dataSource.updateViewStatusToIdle()
         dataSource.updateQuery("")
     }
 

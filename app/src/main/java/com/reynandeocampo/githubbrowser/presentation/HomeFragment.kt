@@ -89,7 +89,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun resetToIdle() {
-        homeViewModel.updateViewStatus(Status.IDLE)
+        homeViewModel.updateViewStatusToIdle()
     }
 
     private fun observeViewModels() {
@@ -113,11 +113,15 @@ class HomeFragment : Fragment() {
         })
 
         homeViewModel.viewStatus.observe(viewLifecycleOwner, {
-            it?.let { status ->
-                when (status) {
+            it?.let { resource ->
+                when (resource.status) {
                     Status.IDLE -> showIdleView()
                     Status.LOADING -> showLoadingView()
-                    Status.SUCCESS -> showResultView()
+                    Status.SUCCESS -> {
+                        resource.data?.let { data ->
+                            if (data.isNotEmpty()) showResultView() else showNoResultView()
+                        }
+                    }
                     Status.ERROR -> showNoResultView()
                 }
             }
