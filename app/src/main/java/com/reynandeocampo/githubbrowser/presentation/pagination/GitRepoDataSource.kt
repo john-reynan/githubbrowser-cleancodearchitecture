@@ -2,7 +2,7 @@ package com.reynandeocampo.githubbrowser.presentation.pagination
 
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
-import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.domain.UseCases
 import com.reynandeocampo.domain.models.GitRepo
 import com.reynandeocampo.domain.models.Resource
 import kotlinx.coroutines.CoroutineScope

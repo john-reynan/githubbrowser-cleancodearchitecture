@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Transformations.switchMap
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.reynandeocampo.data.UseCases
+import com.reynandeocampo.domain.UseCases
 import com.reynandeocampo.githubbrowser.App
 import com.reynandeocampo.githubbrowser.presentation.pagination.GitRepoDataSourceFactory
 import javax.inject.Inject
