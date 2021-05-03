@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.reynandeocampo.data.api.Status
+import com.reynandeocampo.domain.models.Status
 import com.reynandeocampo.githubbrowser.R
 import com.reynandeocampo.githubbrowser.databinding.FragmentHomeBinding
 import com.reynandeocampo.githubbrowser.presentation.adapter.RepoListAdapter

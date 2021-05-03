@@ -7,8 +7,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.reynandeocampo.data.api.Status
 import com.reynandeocampo.domain.models.GitRepo
+import com.reynandeocampo.domain.models.Status
 import com.reynandeocampo.githubbrowser.R
 import com.reynandeocampo.githubbrowser.databinding.ListItemFooterBinding
 import com.reynandeocampo.githubbrowser.databinding.ListItemRepoBinding
@@ -17,6 +17,9 @@ import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.FooterV
 import com.reynandeocampo.githubbrowser.presentation.adapter.viewholders.RepoViewHolder
 import java.text.SimpleDateFormat
 import java.util.*
+
+private const val DATA_VIEW_TYPE = 1
+private const val FOOTER_VIEW_TYPE = 2
 
 class RepoListAdapter(
     private val onClickListener: OnClickListener<GitRepo>,
@@ -114,6 +117,3 @@ class RepoListAdapter(
         }
     }
 }
-
-private const val DATA_VIEW_TYPE = 1
-private const val FOOTER_VIEW_TYPE = 2

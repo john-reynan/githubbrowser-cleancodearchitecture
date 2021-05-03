@@ -3,8 +3,8 @@ package com.reynandeocampo.githubbrowser.presentation.pagination
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.reynandeocampo.data.UseCases
-import com.reynandeocampo.data.api.Resource
 import com.reynandeocampo.domain.models.GitRepo
+import com.reynandeocampo.domain.models.Resource
 
 class GitRepoDataSourceFactory(
     private val useCases: UseCases,
