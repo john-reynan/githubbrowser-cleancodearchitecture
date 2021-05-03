@@ -3,6 +3,7 @@ package com.reynandeocampo.githubbrowser.presentation
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,8 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var repoListAdapter: RepoListAdapter
+
+    private var customTimer: CustomTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,8 +73,9 @@ class HomeFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
+                cancelTimer()
                 if (newText.isNotBlank()) {
-                    searchRepo(newText)
+                    startTimer { searchRepo(newText) }
                 } else {
                     resetToIdle()
                 }
@@ -163,5 +167,27 @@ class HomeFragment : Fragment() {
 
     private fun showToastMessage(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun startTimer(unit: () -> Unit) {
+        customTimer = CustomTimer(1000, 500) { unit() }
+        customTimer?.start()
+    }
+
+    private fun cancelTimer() {
+        customTimer?.cancel()
+        customTimer = null
+    }
+
+    class CustomTimer(
+        millisInFuture: Long, countDownInterval: Long,
+        var onFinishCallback: () -> Unit
+    ) : CountDownTimer(millisInFuture, countDownInterval) {
+
+        override fun onFinish() {
+            onFinishCallback()
+        }
+
+        override fun onTick(p0: Long) {}
     }
 }
